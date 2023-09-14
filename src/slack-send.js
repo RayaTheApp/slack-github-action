@@ -74,10 +74,14 @@ module.exports = async function slackSend(core) {
 
       if (message.length > 0 || payload) {
         const ts = core.getInput('update-ts');
+        const postAt = core.getInput('post-at');
         await Promise.all(channelIds.split(',').map(async (channelId) => {
           if (ts) {
           // update message
             webResponse = await web.chat.update({ ts, channel: channelId.trim(), text: message, ...(payload || {}) });
+          } else if (postAt) {
+          // schedule message
+            webResponse = await web.chat.scheduleMessage({ channel: channelId.trim(), text: message, post_at: postAt, ...(payload || {}) });
           } else {
           // post message
             webResponse = await web.chat.postMessage({ channel: channelId.trim(), text: message, ...(payload || {}) });
@@ -95,6 +99,12 @@ module.exports = async function slackSend(core) {
         console.log('no custom payload was passed in, using default payload that triggered the GitHub Action');
         // Get the JSON webhook payload for the event that triggered the workflow
         payload = github.context.payload;
+      }
+
+      // if we want to schedule a message, add the post_at attribute to the payload
+      const postAt = core.getInput('post-at');
+      if (postAt) {
+        payload.post_at = postAt;
       }
 
       if (webhookType === SLACK_WEBHOOK_TYPES.WORKFLOW_TRIGGER) {

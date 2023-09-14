@@ -16,6 +16,9 @@ inputs:
   update-ts: # The timestamp of a previous message posted to update it instead of posting a new message
     description: 'The timestamp of a previous message posted. It will update the existing message instead of posting a new message'
     required: false
+  post-at: # The timestamp of a future time to post the message
+    description: 'The timestamp of a future time to post the message'
+    required: false
 outputs:
   time: # id of output
     description: 'The time'
